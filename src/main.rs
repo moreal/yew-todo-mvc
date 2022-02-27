@@ -21,6 +21,7 @@ enum Msg {
     Toggle(usize),
     ClearCompleted,
     SetFilter(Filter),
+    Destroy(usize),
 }
 
 #[derive(PartialEq)]
@@ -54,6 +55,10 @@ impl Component for App {
             Msg::Toggle(idx) => self.todo_list[idx].finished = !self.todo_list[idx].finished,
             Msg::ClearCompleted => self.todo_list = self.todo_list.drain(..).filter(|todo| !todo.finished).collect(), // https://doc.rust-lang.org/stable/std/vec/struct.Drain.html,
             Msg::SetFilter(filter) => self.filter = filter,
+            Msg::Destroy(idx) => {
+                self.todo_list.remove(idx);
+                ()
+            },
         };
         LocalStorage::set(LOCAL_STORAGE_TODO_LIST_KEY, &self.todo_list).expect("failed to set");
         true
@@ -89,7 +94,7 @@ impl Component for App {
                                         <div class="view">
                                         <input class="toggle" type="checkbox" onclick={ctx.link().callback(move |_| Msg::Toggle(idx))}/>
                                         <label>{ x.content.as_str() }</label>
-                                        <button></button>
+                                        <button class="destroy" onclick={ctx.link().callback(move |_| Msg::Destroy(idx))}/>
                                         </div>
                                     </li>
                                 </div>

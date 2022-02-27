@@ -17,6 +17,7 @@ struct App {
 
 enum Msg {
     AddTodo(String),
+    Toggle(usize),
 }
 
 const LOCAL_STORAGE_TODO_LIST_KEY: &'static str = "todo_list";
@@ -39,7 +40,8 @@ impl Component for App {
                 finished: false,
                 content,
             }),
-        }
+            Msg::Toggle(idx) => self.todo_list[idx].finished = !self.todo_list[idx].finished,
+        };
         LocalStorage::set(LOCAL_STORAGE_TODO_LIST_KEY, &self.todo_list).expect("failed to set");
         true
     }
@@ -64,9 +66,9 @@ impl Component for App {
                     </header>
                     <section>
                         <ul>
-                            { for self.todo_list.iter().map(|x| html! {
+                            { for self.todo_list.iter().enumerate().map(|(idx, x)| html! {
                                 <li class={ if x.finished { "completed" } else { "" } }>
-                                    <input type="checkbox"/>
+                                    <input type="checkbox" onclick={ctx.link().callback(move |_| Msg::Toggle(idx))}/>
                                     <label>{ x.content.as_str() }</label>
                                     <button></button>
                                 </li>

@@ -48,11 +48,11 @@ impl Component for App {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
-            <section>
+            <section class="todoapp">
                 <div>
-                    <header>
+                    <header class="header">
                         <h1>{ "todos" }</h1>
-                        <input onkeypress={
+                        <input class="new-todo" onkeypress={
                             ctx.link().batch_callback(|e: KeyboardEvent| match e.key().as_str() {
                                 "Enter" => {
                                     let input_element: InputElement = e.target_unchecked_into();
@@ -64,25 +64,31 @@ impl Component for App {
                             })
                         }/>
                     </header>
-                    <section>
-                        <ul>
+                    <section class="main">
+                        <ul class="todo-list">
                             { for self.todo_list.iter().enumerate().map(|(idx, x)| html! {
-                                <li class={ if x.finished { "completed" } else { "" } }>
-                                    <input type="checkbox" onclick={ctx.link().callback(move |_| Msg::Toggle(idx))}/>
-                                    <label>{ x.content.as_str() }</label>
-                                    <button></button>
-                                </li>
+                                <div class="view">
+                                    <li class={ if x.finished { "completed" } else { "" } }>
+                                        <div class="view">
+                                        <input class="toggle" type="checkbox" onclick={ctx.link().callback(move |_| Msg::Toggle(idx))}/>
+                                        <label>{ x.content.as_str() }</label>
+                                        <button></button>
+                                        </div>
+                                    </li>
+                                </div>
                             })}
                         </ul>
                     </section>
-                    <footer>
+                    <footer class="footer">
                         <span class="todo-count">
                             <strong>{ self.todo_list.iter().filter(|x| !x.finished ).count() }</strong>
                             <span>{" items left"}</span>
                         </span>
-                        <ul><li><a>{ "All" }</a></li></ul>
-                        <ul><li><a href="#/active">{ "Active" }</a></li></ul>
-                        <ul><li><a href="#/completed">{ "Completed" }</a></li></ul>
+                        <ul class="filters">
+                            <li><a class="selected">{ "All" }</a></li>
+                            <li><a href="#/active">{ "Active" }</a></li>
+                            <li><a href="#/completed">{ "Completed" }</a></li>
+                        </ul>
                     </footer>
                 </div>
             </section>

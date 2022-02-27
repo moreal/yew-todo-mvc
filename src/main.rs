@@ -1,6 +1,9 @@
 use yew::prelude::*;
 use web_sys::HtmlInputElement as InputElement;
+use gloo::storage::{LocalStorage, Storage};
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
 struct Todo {
     pub finished: bool,
     pub content: String,
@@ -16,6 +19,8 @@ enum Msg {
     AddTodo(String)
 }
 
+const LOCAL_STORAGE_TODO_LIST_KEY: &'static str = "todo_list";
+
 impl Component for App {
     type Message = Msg;
 
@@ -23,16 +28,7 @@ impl Component for App {
 
     fn create(_: &Context<Self>) -> Self {
         App {
-            todo_list: vec![
-                Todo {
-                    finished: true,
-                    content: "Todo".to_string(),
-                },
-                Todo {
-                    finished: false,
-                    content: "AAA".to_string(),
-                }
-            ]
+            todo_list: LocalStorage::get(LOCAL_STORAGE_TODO_LIST_KEY).unwrap_or_else(|_| Vec::new())
         }
     }
 
@@ -42,6 +38,7 @@ impl Component for App {
                 self.todo_list.push(Todo { finished: false, content })
             }
         }
+        LocalStorage::set(LOCAL_STORAGE_TODO_LIST_KEY, &self.todo_list).expect("failed to set");
         true
     }
 

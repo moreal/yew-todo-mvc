@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 yew = "0.19"
+gloo = "0.6"
+serde = "1"
+serde_derive = "1"
 
 [dependencies.web-sys]
 version = "0.3"

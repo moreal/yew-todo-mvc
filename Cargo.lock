@@ -437,5 +437,6 @@ dependencies = [
 name = "yew-todo-list"
 version = "0.1.0"
 dependencies = [
+ "web-sys",
  "yew",
 ]

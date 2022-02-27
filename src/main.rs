@@ -1,4 +1,5 @@
 use yew::prelude::*;
+use web_sys::HtmlInputElement as InputElement;
 
 struct Todo {
     pub finished: bool,
@@ -11,8 +12,12 @@ struct App {
     todo_list: TodoList,
 }
 
+enum Msg {
+    AddTodo(String)
+}
+
 impl Component for App {
-    type Message = ();
+    type Message = Msg;
 
     type Properties = ();
 
@@ -31,13 +36,32 @@ impl Component for App {
         }
     }
 
-    fn view(&self, _: &Context<Self>) -> Html {
+    fn update(&mut self, _: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::AddTodo(content) => {
+                self.todo_list.push(Todo { finished: false, content })
+            }
+        }
+        true
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <section>
                 <div>
                     <header>
                         <h1>{ "todos" }</h1>
-                        <input value={""}/>
+                        <input onkeypress={
+                            ctx.link().batch_callback(|e: KeyboardEvent| match e.key().as_str() {
+                                "Enter" => {
+                                    let input_element: InputElement = e.target_unchecked_into();
+                                    let value = input_element.value();
+                                    input_element.set_value(""); // reset                                    
+                                    Some(Msg::AddTodo(value))
+                                },
+                                _ => None,
+                            })
+                        }/>
                     </header>
                     <section>
                         <ul>

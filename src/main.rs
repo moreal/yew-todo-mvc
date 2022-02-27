@@ -1,6 +1,15 @@
 use yew::prelude::*;
 
-struct App {}
+struct Todo {
+    pub finished: bool,
+    pub content: String,
+}
+
+type TodoList = Vec<Todo>;
+
+struct App {
+    todo_list: TodoList,
+}
 
 impl Component for App {
     type Message = ();
@@ -8,10 +17,28 @@ impl Component for App {
     type Properties = ();
 
     fn create(_: &Context<Self>) -> Self {
-        App {}
+        App {
+            todo_list: vec![
+                Todo {
+                    finished: true,
+                    content: "Todo".to_string(),
+                },
+                Todo {
+                    finished: false,
+                    content: "AAA".to_string(),
+                }
+            ]
+        }
     }
 
     fn view(&self, _: &Context<Self>) -> Html {
+        let todo_list = self.todo_list.iter().map(|x| html! {
+            <li class={ if x.finished { "completed" } else { "" } }>
+                <input type="checkbox"/>
+                <label>{ x.content.as_str() }</label>
+                <button></button>
+            </li>
+        }).collect::<Html>();
         html! {
             <section>
                 <div>
@@ -21,21 +48,12 @@ impl Component for App {
                     </header>
                     <section>
                         <ul>
-                            <li>
-                                <input type="checkbox"/>
-                                <label>{ "Hello" }</label>
-                                <button></button>
-                            </li>
-                            <li>
-                                <input type="checkbox"/>
-                                <label>{ "AAA" }</label>
-                                <button></button>
-                            </li>
+                            {todo_list}
                         </ul>
                     </section>
                     <footer>
                         <span class="todo-count">
-                            <strong>{ 2 }</strong>
+                            <strong>{ self.todo_list.iter().filter(|x| !x.finished ).count() }</strong>
                             <span>{" items left"}</span>
                         </span>
                         <ul><li><a>{ "All" }</a></li></ul> 

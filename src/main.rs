@@ -22,6 +22,7 @@ enum Msg {
     ClearCompleted,
     SetFilter(Filter),
     Destroy(usize),
+    ToggleAll,
 }
 
 #[derive(PartialEq)]
@@ -59,6 +60,11 @@ impl Component for App {
                 self.todo_list.remove(idx);
                 ()
             },
+            Msg::ToggleAll => {
+                for todo in self.todo_list.iter_mut() {
+                    todo.finished = true;
+                }
+            }
         };
         LocalStorage::set(LOCAL_STORAGE_TODO_LIST_KEY, &self.todo_list).expect("failed to set");
         true
@@ -83,6 +89,8 @@ impl Component for App {
                         }/>
                     </header>
                     <section class="main">
+                        <input id="toggle-all" class="toggle-all" type="checkbox" />
+                        <label for="toggle-all" onclick={ctx.link().callback(move |_| Msg::ToggleAll)}/>
                         <ul class="todo-list">
                             { for self.todo_list.iter().enumerate().filter(|(_, x)| match self.filter {
                                 Filter::All => true,

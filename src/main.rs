@@ -1,7 +1,7 @@
-use yew::prelude::*;
-use web_sys::HtmlInputElement as InputElement;
 use gloo::storage::{LocalStorage, Storage};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use web_sys::HtmlInputElement as InputElement;
+use yew::prelude::*;
 
 #[derive(Serialize, Deserialize)]
 struct Todo {
@@ -16,7 +16,7 @@ struct App {
 }
 
 enum Msg {
-    AddTodo(String)
+    AddTodo(String),
 }
 
 const LOCAL_STORAGE_TODO_LIST_KEY: &'static str = "todo_list";
@@ -28,15 +28,17 @@ impl Component for App {
 
     fn create(_: &Context<Self>) -> Self {
         App {
-            todo_list: LocalStorage::get(LOCAL_STORAGE_TODO_LIST_KEY).unwrap_or_else(|_| Vec::new())
+            todo_list: LocalStorage::get(LOCAL_STORAGE_TODO_LIST_KEY)
+                .unwrap_or_else(|_| Vec::new()),
         }
     }
 
     fn update(&mut self, _: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::AddTodo(content) => {
-                self.todo_list.push(Todo { finished: false, content })
-            }
+            Msg::AddTodo(content) => self.todo_list.push(Todo {
+                finished: false,
+                content,
+            }),
         }
         LocalStorage::set(LOCAL_STORAGE_TODO_LIST_KEY, &self.todo_list).expect("failed to set");
         true
@@ -53,7 +55,7 @@ impl Component for App {
                                 "Enter" => {
                                     let input_element: InputElement = e.target_unchecked_into();
                                     let value = input_element.value();
-                                    input_element.set_value(""); // reset                                    
+                                    input_element.set_value(""); // reset
                                     Some(Msg::AddTodo(value))
                                 },
                                 _ => None,
@@ -76,8 +78,8 @@ impl Component for App {
                             <strong>{ self.todo_list.iter().filter(|x| !x.finished ).count() }</strong>
                             <span>{" items left"}</span>
                         </span>
-                        <ul><li><a>{ "All" }</a></li></ul> 
-                        <ul><li><a href="#/active">{ "Active" }</a></li></ul> 
+                        <ul><li><a>{ "All" }</a></li></ul>
+                        <ul><li><a href="#/active">{ "Active" }</a></li></ul>
                         <ul><li><a href="#/completed">{ "Completed" }</a></li></ul>
                     </footer>
                 </div>

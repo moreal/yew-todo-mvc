@@ -32,13 +32,6 @@ impl Component for App {
     }
 
     fn view(&self, _: &Context<Self>) -> Html {
-        let todo_list = self.todo_list.iter().map(|x| html! {
-            <li class={ if x.finished { "completed" } else { "" } }>
-                <input type="checkbox"/>
-                <label>{ x.content.as_str() }</label>
-                <button></button>
-            </li>
-        }).collect::<Html>();
         html! {
             <section>
                 <div>
@@ -48,7 +41,13 @@ impl Component for App {
                     </header>
                     <section>
                         <ul>
-                            {todo_list}
+                            { for self.todo_list.iter().map(|x| html! {
+                                <li class={ if x.finished { "completed" } else { "" } }>
+                                    <input type="checkbox"/>
+                                    <label>{ x.content.as_str() }</label>
+                                    <button></button>
+                                </li>
+                            })}
                         </ul>
                     </section>
                     <footer>

@@ -18,6 +18,7 @@ struct App {
 enum Msg {
     AddTodo(String),
     Toggle(usize),
+    ClearCompleted,
 }
 
 const LOCAL_STORAGE_TODO_LIST_KEY: &'static str = "todo_list";
@@ -41,6 +42,7 @@ impl Component for App {
                 content,
             }),
             Msg::Toggle(idx) => self.todo_list[idx].finished = !self.todo_list[idx].finished,
+            Msg::ClearCompleted => self.todo_list = self.todo_list.drain(..).filter(|todo| !todo.finished).collect(), // https://doc.rust-lang.org/stable/std/vec/struct.Drain.html,
         };
         LocalStorage::set(LOCAL_STORAGE_TODO_LIST_KEY, &self.todo_list).expect("failed to set");
         true
@@ -89,6 +91,7 @@ impl Component for App {
                             <li><a href="#/active">{ "Active" }</a></li>
                             <li><a href="#/completed">{ "Completed" }</a></li>
                         </ul>
+                        <button class="clear-completed" onclick={ctx.link().callback(|_| Msg::ClearCompleted)}>{ "Clear completed" }</button>
                     </footer>
                 </div>
             </section>

@@ -25,11 +25,21 @@ enum Msg {
     ToggleAll,
 }
 
-#[derive(PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 enum Filter {
     All,
     Active,
     Completed,
+}
+
+impl Filter {
+    fn to_string(self) -> String {
+        match self {
+            Filter::All => "All",
+            Filter::Active => "Active",
+            Filter::Completed => "Completed",
+        }.to_string()
+    }
 }
 
 const LOCAL_STORAGE_TODO_LIST_KEY: &'static str = "todo_list";
@@ -115,15 +125,20 @@ impl Component for App {
                             <span>{" items left"}</span>
                         </span>
                         <ul class="filters">
-                            <li><a class={ if self.filter == Filter::All {"selected"} else {""} } onclick={ctx.link().callback(|_| Msg::SetFilter(Filter::All))}>{ "All" }</a></li>
-                            <li><a class={ if self.filter == Filter::Active {"selected"} else {""} } onclick={ctx.link().callback(|_| Msg::SetFilter(Filter::Active))}>{ "Active" }</a></li>
-                            <li><a class={ if self.filter == Filter::Completed {"selected"} else {""} } onclick={ctx.link().callback(|_| Msg::SetFilter(Filter::Completed))}>{ "Completed" }</a></li>
+                            {for vec![Filter::All, Filter::Active, Filter::Completed].iter().map(|filter| self.view_filter(ctx, filter.to_owned()))}
                         </ul>
                         <button class="clear-completed" onclick={ctx.link().callback(|_| Msg::ClearCompleted)}>{ "Clear completed" }</button>
                     </footer>
                 </div>
             </section>
         }
+    }
+}
+
+impl App {
+    fn view_filter(&self, ctx: &Context<Self>, filter: Filter) -> Html {
+        let filter_string = filter.to_string();
+        html! { <li><a class={ if self.filter == filter {"selected"} else {""} } onclick={ctx.link().callback(move |_| Msg::SetFilter(filter))}>{ filter_string }</a></li> }
     }
 }
 

@@ -106,17 +106,7 @@ impl Component for App {
                                 Filter::All => true,
                                 Filter::Active => !x.finished,
                                 Filter::Completed => x.finished
-                            }).map(|(idx, x)| html! {
-                                <div class="view">
-                                    <li class={ if x.finished { "completed" } else { "" } }>
-                                        <div class="view">
-                                        <input class="toggle" type="checkbox" onclick={ctx.link().callback(move |_| Msg::Toggle(idx))}/>
-                                        <label>{ x.content.as_str() }</label>
-                                        <button class="destroy" onclick={ctx.link().callback(move |_| Msg::Destroy(idx))}/>
-                                        </div>
-                                    </li>
-                                </div>
-                            })}
+                            }).map(|(idx, x)| self.view_todo_entry(ctx, idx, x))}
                         </ul>
                     </section>
                     <footer class="footer">
@@ -136,6 +126,20 @@ impl Component for App {
 }
 
 impl App {
+    fn view_todo_entry(&self, ctx: &Context<Self>, idx: usize, todo: &Todo) -> Html {
+        html! {
+            <div class="view">
+                <li class={ if todo.finished { "completed" } else { "" } }>
+                    <div class="view">
+                    <input class="toggle" type="checkbox" onclick={ctx.link().callback(move |_| Msg::Toggle(idx))}/>
+                    <label>{ todo.content.as_str() }</label>
+                    <button class="destroy" onclick={ctx.link().callback(move |_| Msg::Destroy(idx))}/>
+                    </div>
+                </li>
+            </div>
+        }
+    }
+
     fn view_filter(&self, ctx: &Context<Self>, filter: Filter) -> Html {
         let filter_string = filter.to_string();
         html! { <li><a class={ if self.filter == filter {"selected"} else {""} } onclick={ctx.link().callback(move |_| Msg::SetFilter(filter))}>{ filter_string }</a></li> }

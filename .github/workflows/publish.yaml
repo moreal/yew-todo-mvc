@@ -1,19 +1,29 @@
-on: push
+name: build
+on: [push, pull_request]
+
 jobs:
-  publish:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           target: wasm32-unknown-unknown
-      - uses: actions-rs/cargo@v1
+          override: true
+          profile: minimal
+      - uses: Swatinem/rust-cache@v1
+      - uses: jetli/trunk-action@v0.1.0
         with:
-          command: install
-          args: --locked trunk
-      - run: trunk build
-      - uses: JamesIves/github-pages-deploy-action@v4.2.5
+          # Optional version of trunk to install(eg. 'v0.8.1', 'latest')
+          version: "latest"
+      - run: |
+          trunk build \
+            --release \
+            --dist ./dist \
+            --public-url "/${GITHUB_REPOSITORY#*/}/"
+      - if: github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: dist # The folder the action should deploy.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist

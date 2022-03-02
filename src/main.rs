@@ -1,17 +1,17 @@
+mod components;
+mod domains;
+
+use crate::domains::filter::Filter;
+use crate::domains::todo::Todo;
+use crate::domains::todo::TodoList;
 use std::rc::Rc;
 
 use gloo::storage::{LocalStorage, Storage};
-use serde::{Deserialize, Serialize};
 use web_sys::HtmlInputElement as InputElement;
 use yew::prelude::*;
 
-#[derive(Clone, Serialize, Deserialize, PartialEq)]
-struct Todo {
-    pub finished: bool,
-    pub content: String,
-}
-
-type TodoList = Vec<Todo>;
+use components::todo_entry::*;
+use components::filter::*;
 
 enum Msg {
     AddTodo(String),
@@ -20,23 +20,6 @@ enum Msg {
     SetFilter(Filter),
     Destroy(usize),
     ToggleAll,
-}
-
-#[derive(Copy, Clone, PartialEq)]
-enum Filter {
-    All,
-    Active,
-    Completed,
-}
-
-impl Filter {
-    fn to_string(self) -> String {
-        match self {
-            Filter::All => "All",
-            Filter::Active => "Active",
-            Filter::Completed => "Completed",
-        }.to_string()
-    }
 }
 
 const LOCAL_STORAGE_TODO_LIST_KEY: &'static str = "todo_list";
@@ -164,7 +147,10 @@ fn app() -> Html {
                             Filter::All => true,
                             Filter::Active => !x.finished,
                             Filter::Completed => x.finished
-                        }).map(|(idx, x)| html! { <TodoEntry {idx} ondestroy={ondestroy.clone()} ontoggle={ontoggle.clone()} todo={x.clone()} /> } )}
+                        }).map(|(idx, x)| {
+                            let todo: domains::todo::Todo = x.clone();
+                            html! { <TodoEntry {idx} ondestroy={ondestroy.clone()} ontoggle={ontoggle.clone()} {todo} /> } 
+                        })}
                     </ul>
                 </section>
                 <footer class="footer">
@@ -180,58 +166,6 @@ fn app() -> Html {
             </div>
         </section>
     }
-}
-
-#[derive(PartialEq, Properties)]
-struct TodoEntryProps {
-    idx: usize,
-    todo: Todo,
-    ontoggle: Callback<usize>,
-    ondestroy: Callback<usize>,
-}
-
-#[function_component(TodoEntry)]
-fn view_todo_entry(props: &TodoEntryProps) -> Html {
-    let idx = props.idx;
-    let toggle = {
-        let ontoggle = props.ontoggle.clone();
-        move |_| ontoggle.emit(idx)
-    };
-    let destroy = {
-        let ondestroy = props.ondestroy.clone();
-        move |_| ondestroy.emit(idx)
-    };
-
-    html! {
-        <div class="view">
-            <li class={ if props.todo.finished { "completed" } else { "" } }>
-                <div class="view">
-                <input class="toggle" type="checkbox" onclick={toggle}/>
-                <label>{ props.todo.content.as_str() }</label>
-                <button class="destroy" onclick={destroy}/>
-                </div>
-            </li>
-        </div>
-    }
-}
-
-#[derive(PartialEq, Properties)]
-struct FilterEntryProps {
-    filter: Filter,
-    selected: bool,
-    onsetfilter: Callback<Filter>
-}
-
-#[function_component(FilterEntry)]
-fn view_filter(props: &FilterEntryProps) -> Html {
-    let filter_string = props.filter.to_string();
-    let setfilter = {
-        let onsetfilter = props.onsetfilter.clone();
-        let filter = props.filter;
-        move |_| onsetfilter.emit(filter)
-    };
-
-    html! { <li><a class={ if props.selected {"selected"} else {""} } onclick={setfilter}>{ filter_string }</a></li> }
 }
 
 fn main() {

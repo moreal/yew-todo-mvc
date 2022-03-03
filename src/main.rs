@@ -1,10 +1,8 @@
 mod components;
 mod domains;
+mod state;
 
 use crate::domains::filter::Filter;
-use crate::domains::todo::Todo;
-use crate::domains::todo::TodoList;
-use std::rc::Rc;
 
 use gloo::storage::{LocalStorage, Storage};
 use web_sys::HtmlInputElement as InputElement;
@@ -14,70 +12,9 @@ use components::filter::*;
 use components::todo_entry::*;
 use components::todo_list::TodoList as TodoListComponent;
 
-enum Msg {
-    AddTodo(String),
-    Toggle(usize),
-    ClearCompleted,
-    SetFilter(Filter),
-    Destroy(usize),
-    ToggleAll,
-}
+use state::{Msg, State};
 
 const LOCAL_STORAGE_TODO_LIST_KEY: &str = "todo_list";
-
-#[derive(PartialEq)]
-struct State {
-    todo_list: TodoList,
-    filter: Filter,
-}
-
-impl Reducible for State {
-    type Action = Msg;
-
-    fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
-        match action {
-            Msg::AddTodo(content) => {
-                let mut todo_list = self.todo_list.clone();
-                todo_list.push(Todo {
-                    finished: false,
-                    content,
-                });
-                State { todo_list, ..*self }
-            }
-            Msg::Toggle(idx) => {
-                let mut todo_list = self.todo_list.clone();
-                todo_list[idx].finished = !todo_list[idx].finished;
-                State { todo_list, ..*self }
-            }
-            Msg::ClearCompleted => {
-                let mut todo_list = self.todo_list.clone();
-                todo_list.retain(|todo| !todo.finished);
-                State { todo_list, ..*self }
-            }
-            Msg::SetFilter(filter) => State {
-                filter,
-                todo_list: self.todo_list.clone(),
-            },
-            Msg::Destroy(idx) => {
-                let mut todo_list = self.todo_list.clone();
-                todo_list.remove(idx);
-                State { todo_list, ..*self }
-            }
-            Msg::ToggleAll => {
-                let todo_list = self
-                    .todo_list
-                    .iter()
-                    .map(|todo| Todo {
-                        finished: true,
-                        content: todo.content.clone(),
-                    })
-                    .collect();
-                State { todo_list, ..*self }
-            }
-        }
-        .into()
-    }
-}
 
 #[function_component(App)]
 fn app() -> Html {

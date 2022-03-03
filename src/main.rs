@@ -11,6 +11,8 @@ use web_sys::HtmlInputElement as InputElement;
 use yew::prelude::*;
 
 use components::todo_entry::*;
+use components::todo_list::*;
+use components::todo_list::TodoList as TodoListComponent;
 use components::filter::*;
 
 enum Msg {
@@ -142,16 +144,7 @@ fn app() -> Html {
                 <section class="main">
                     <input id="toggle-all" class="toggle-all" type="checkbox" />
                     <label for="toggle-all" onclick={toggle_all}/>
-                    <ul class="todo-list">
-                        { for state.todo_list.iter().enumerate().filter(|(_, x)| match state.filter {
-                            Filter::All => true,
-                            Filter::Active => !x.finished,
-                            Filter::Completed => x.finished
-                        }).map(|(idx, x)| {
-                            let todo: domains::todo::Todo = x.clone();
-                            html! { <TodoEntry {idx} ondestroy={ondestroy.clone()} ontoggle={ontoggle.clone()} {todo} /> } 
-                        })}
-                    </ul>
+                    <TodoListComponent todo_list={state.todo_list.clone()} filter={state.filter} {ondestroy} {ontoggle} />
                 </section>
                 <footer class="footer">
                     <span class="todo-count">

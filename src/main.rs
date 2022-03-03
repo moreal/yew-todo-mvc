@@ -13,7 +13,6 @@ use yew::prelude::*;
 use components::filter::*;
 use components::todo_entry::*;
 use components::todo_list::TodoList as TodoListComponent;
-use components::todo_list::*;
 
 enum Msg {
     AddTodo(String),
@@ -24,7 +23,7 @@ enum Msg {
     ToggleAll,
 }
 
-const LOCAL_STORAGE_TODO_LIST_KEY: &'static str = "todo_list";
+const LOCAL_STORAGE_TODO_LIST_KEY: &str = "todo_list";
 
 #[derive(PartialEq)]
 struct State {

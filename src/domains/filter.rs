@@ -16,3 +16,9 @@ impl Display for Filter {
         })
     }
 }
+
+impl Filter {
+    pub fn all() -> Vec<Filter> {
+        vec![Filter::All, Filter::Active, Filter::Completed]
+    }
+}

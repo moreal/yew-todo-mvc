@@ -148,7 +148,7 @@ fn app() -> Html {
                         <span>{" items left"}</span>
                     </span>
                     <ul class="filters">
-                        {for vec![Filter::All, Filter::Active, Filter::Completed].into_iter().map(|filter| html! { <FilterEntry {filter} selected={filter == state.filter} onsetfilter={onsetfilter.clone()} /> })}
+                        {for Filter::all().into_iter().map(|filter| html! { <FilterEntry {filter} selected={filter == state.filter} onsetfilter={onsetfilter.clone()} /> })}
                     </ul>
                     <button class="clear-completed" onclick={clear_completed}>{ "Clear completed" }</button>
                 </footer>

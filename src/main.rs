@@ -10,10 +10,10 @@ use gloo::storage::{LocalStorage, Storage};
 use web_sys::HtmlInputElement as InputElement;
 use yew::prelude::*;
 
-use components::todo_entry::*;
-use components::todo_list::*;
-use components::todo_list::TodoList as TodoListComponent;
 use components::filter::*;
+use components::todo_entry::*;
+use components::todo_list::TodoList as TodoListComponent;
+use components::todo_list::*;
 
 enum Msg {
     AddTodo(String),
@@ -43,60 +43,57 @@ impl Reducible for State {
                     finished: false,
                     content,
                 });
-                State {
-                    todo_list,
-                    ..*self
-                }
-            },
+                State { todo_list, ..*self }
+            }
             Msg::Toggle(idx) => {
                 let mut todo_list = self.todo_list.clone();
                 todo_list[idx].finished = !todo_list[idx].finished;
-                State {
-                    todo_list,
-                    ..*self
-                }
-            },
+                State { todo_list, ..*self }
+            }
             Msg::ClearCompleted => {
                 let mut todo_list = self.todo_list.clone();
                 todo_list.retain(|todo| !todo.finished);
-                State {
-                    todo_list,
-                    ..*self
-                }
+                State { todo_list, ..*self }
             }
-            Msg::SetFilter(filter) => State { filter, todo_list: self.todo_list.clone() },
+            Msg::SetFilter(filter) => State {
+                filter,
+                todo_list: self.todo_list.clone(),
+            },
             Msg::Destroy(idx) => {
                 let mut todo_list = self.todo_list.clone();
                 todo_list.remove(idx);
-                State {
-                    todo_list,
-                    ..*self
-                }
-            },
-            Msg::ToggleAll => {
-                let todo_list = self.todo_list.iter().map(|todo| Todo { finished: true, content: todo.content.clone() }).collect();
-                State {
-                    todo_list,
-                    ..*self
-                }
+                State { todo_list, ..*self }
             }
-        }.into()
+            Msg::ToggleAll => {
+                let todo_list = self
+                    .todo_list
+                    .iter()
+                    .map(|todo| Todo {
+                        finished: true,
+                        content: todo.content.clone(),
+                    })
+                    .collect();
+                State { todo_list, ..*self }
+            }
+        }
+        .into()
     }
 }
 
 #[function_component(App)]
 fn app() -> Html {
     let state = use_reducer(|| State {
-        todo_list: LocalStorage::get(LOCAL_STORAGE_TODO_LIST_KEY)
-            .unwrap_or_else(|_| Vec::new()),
+        todo_list: LocalStorage::get(LOCAL_STORAGE_TODO_LIST_KEY).unwrap_or_else(|_| Vec::new()),
         filter: Filter::All,
     });
 
-    use_effect_with_deps(move |state| {
-            LocalStorage::set(LOCAL_STORAGE_TODO_LIST_KEY, &state.clone().todo_list).expect("failed to set");
+    use_effect_with_deps(
+        move |state| {
+            LocalStorage::set(LOCAL_STORAGE_TODO_LIST_KEY, &state.clone().todo_list)
+                .expect("failed to set");
             || ()
-        }, 
-    state.clone(),
+        },
+        state.clone(),
     );
 
     let onkeypress = {

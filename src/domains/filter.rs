@@ -11,6 +11,7 @@ impl Filter {
             Filter::All => "All",
             Filter::Active => "Active",
             Filter::Completed => "Completed",
-        }.to_string()
+        }
+        .to_string()
     }
 }

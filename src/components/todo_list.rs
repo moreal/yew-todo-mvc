@@ -1,7 +1,7 @@
 use crate::TodoEntry;
 use yew::prelude::*;
 
-use crate::domains::{todo::{TodoList as Items}, filter::Filter};
+use crate::domains::{filter::Filter, todo::TodoList as Items};
 
 #[derive(Properties, PartialEq, Clone)]
 pub struct TodoListProps {
@@ -20,7 +20,7 @@ pub fn todo_list(props: &TodoListProps) -> Html {
                 Filter::Active => !x.finished,
                 Filter::Completed => x.finished
             }).map(|(idx, x)| {
-                html! { <TodoEntry {idx} ondestroy={props.ondestroy.clone()} ontoggle={props.ontoggle.clone()} todo={x.clone()} /> } 
+                html! { <TodoEntry {idx} ondestroy={props.ondestroy.clone()} ontoggle={props.ontoggle.clone()} todo={x.clone()} /> }
             })}
         </ul>
     }

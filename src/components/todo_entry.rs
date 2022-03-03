@@ -1,5 +1,5 @@
-use yew::prelude::*;
 use crate::domains::todo::Todo;
+use yew::prelude::*;
 
 #[derive(PartialEq, Properties, Clone)]
 pub struct TodoEntryProps {

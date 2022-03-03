@@ -5,7 +5,7 @@ use yew::prelude::*;
 pub struct FilterEntryProps {
     pub filter: Filter,
     pub selected: bool,
-    pub onsetfilter: Callback<Filter>
+    pub onsetfilter: Callback<Filter>,
 }
 
 #[function_component(FilterEntry)]
